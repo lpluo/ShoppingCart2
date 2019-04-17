@@ -4,6 +4,7 @@ using System.Text;
 using ShoppingCart.Interfaces;
 using ShoppingCart.Models;
 using System.Linq;
+using ShoppingCart.Offers;
 
 namespace ShoppingCart.Checkout.Process
 {
@@ -44,6 +45,26 @@ namespace ShoppingCart.Checkout.Process
                            { item.Quantity, product.UnitPrice };
             var tot = qtyItems.Sum(item => item.Quantity * item.UnitPrice);
             return tot;
+
+        }
+
+        /// <summary>
+        /// Get total cost for the current checkout items with a list of offers
+        /// </summary>
+        /// <param name="lstProductOffer">A list of offers</param>
+        /// <returns>Cost</returns>
+        public decimal GetTotalCost(IList<KeyValuePair<int, OfferFlags>> lstProductOffer)
+        {
+            var discount = GetOfferDiscount(lstProductOffer);
+            var tot = GetTotalCost() - discount;
+            return tot;
+
+        }
+        public decimal GetOfferDiscount(IList<KeyValuePair<int, OfferFlags>> lstProductOffer)
+        {
+            var offer = new Offers.Offers(_lstCheckoutItem, _lstProduct, lstProductOffer);
+            var discount = offer.GetDiscount();
+            return discount;
 
         }
 
